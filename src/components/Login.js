@@ -1,16 +1,21 @@
+import { useState } from "react";
 import Header from "./Header";
 
 const Login = () =>{
+    const [formName, setFormName] = useState("Sign In");
     return(
         <div>
             <Header />
             <div className="absolute">
                 <img src="https://assets.nflxext.com/ffe/siteui/vlv3/dd4dfce3-1a39-4b1a-8e19-b7242da17e68/86742114-c001-4800-a127-c9c89ca7bbe4/IN-en-20240527-popsignuptwoweeks-perspective_alpha_website_large.jpg" alt="background" />
             </div>
-            <form className="w-3/12 absolute p-12 bg-black my-36 mx-auto left-0 right-0">
-                <input type="text" placeholder="Name" className="p-2 m-2" />
-                <input type="password" placeholder="Password" className="p-2 m-2" />
-                <button className="p-4 m-2 bg-red-500 text-white " >Sign In</button>
+            <form className="w-3/12 absolute p-12 bg-black bg-opacity-90 my-36 mx-auto text-white left-0 right-0">
+                <h1 className="font-bold text-3xl py-4 ">{formName}</h1>
+                {formName === "Sign Up" && <input type="text" placeholder="Full Name" className="p-4 my-4 w-full bg-gray-900 rounded-lg" />}
+                <input type="text" placeholder="Email" className="p-4 my-4 w-full bg-gray-900 rounded-lg" />
+                <input type="password" placeholder="Password" className="p-4 my-4 w-full bg-gray-900 rounded-lg" />
+                <button className="p-4 my-6 w-full bg-red-700 text-white rounded-lg " >{formName}</button>
+                <p onClick={()=>{formName === "Sign Up" ? setFormName("Sign In") : setFormName("Sign Up")}} className="cursor-pointer">{formName === "Sign In" ? "New to Netflix ? SignUp" : "Already have account ? SignIn" }</p>
             </form>
         </div>
     )
