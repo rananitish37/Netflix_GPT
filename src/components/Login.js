@@ -3,9 +3,9 @@ import Header from "./Header";
 import { checkValidData } from "../Utils/Validate";
 import { createUserWithEmailAndPassword,signInWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { auth } from "../Utils/firebase";
-import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { addUser } from "../Utils/userSlice";
+import { photo_URL } from "../Utils/constants";
 
 const Login = () =>{
     const [formName, setFormName] = useState("Sign In");
@@ -14,7 +14,6 @@ const Login = () =>{
     const email = useRef(null);
     const password = useRef(null);
     const [message,setMessage] = useState(null);
-    const navigate = useNavigate();
     const dispatch = useDispatch();
 
     const handleButtonClick = () =>{
@@ -32,12 +31,11 @@ const Login = () =>{
                 // Signed up 
                 const user = userCredential.user;
                 updateProfile(user, {
-                    displayName: name.current.value, photoURL: "https://avatars.githubusercontent.com/u/110787633?v=4"
+                    displayName: name.current.value, photoURL: photo_URL
                   }).then(() => {
                     // Profile updated!
                     const {uid, email, name,photoURL} = auth.currentUser;
                     dispatch(addUser({uid: uid, email: email, name: name,photoURL: photoURL}));
-                    navigate("/browse");
 
                   }).catch((error) => {
                     setMessage(error.message);
@@ -55,7 +53,6 @@ const Login = () =>{
                 // Signed in 
                 // const user = userCredential.user;
                 // console.log(user);
-                navigate("/browse");
                 // ...
                 })
                 .catch((error) => {
