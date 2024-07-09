@@ -1,20 +1,23 @@
 import { useRef, useState } from "react";
 import Header from "./Header";
 import { checkValidData } from "../Utils/Validate";
-import { createUserWithEmailAndPassword,signInWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword,signInWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { auth } from "../Utils/firebase";
+import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { addUser } from "../Utils/userSlice";
 
 const Login = () =>{
     const [formName, setFormName] = useState("Sign In");
     
+    const name = useRef(null);
     const email = useRef(null);
     const password = useRef(null);
     const [message,setMessage] = useState(null);
+    const navigate = useNavigate();
+    const dispatch = useDispatch();
 
     const handleButtonClick = () =>{
-
-        // console.log(email.current.value);
-        // console.log(password);
 
         // VALIDATION
         const message = checkValidData(email.current.value, password.current.value);
@@ -22,28 +25,37 @@ const Login = () =>{
         // console.log(message);
 
         // AUTHENTICATION
-        if(formName == "Sign Up"){
+        if(formName === "Sign Up"){
         // Sign Up
             createUserWithEmailAndPassword(auth, email.current.value, password.current.value)
                 .then((userCredential) => {
                 // Signed up 
                 const user = userCredential.user;
-                console.log(user);
-                // ...
+                updateProfile(user, {
+                    displayName: name.current.value, photoURL: "https://avatars.githubusercontent.com/u/110787633?v=4"
+                  }).then(() => {
+                    // Profile updated!
+                    const {uid, email, name,photoURL} = auth.currentUser;
+                    dispatch(addUser({uid: uid, email: email, name: name,photoURL: photoURL}));
+                    navigate("/browse");
+
+                  }).catch((error) => {
+                    setMessage(error.message);
+                  });
                 })
                 .catch((error) => {
                 const errorCode = error.code;
                 const errorMessage = error.message;
                 setMessage(errorCode+"-"+errorMessage);
-                // ..
             });
         }else{
             // Sign In
             signInWithEmailAndPassword(auth, email.current.value, password.current.value)
                 .then((userCredential) => {
                 // Signed in 
-                const user = userCredential.user;
-                console.log(user);
+                // const user = userCredential.user;
+                // console.log(user);
+                navigate("/browse");
                 // ...
                 })
                 .catch((error) => {
@@ -62,7 +74,7 @@ const Login = () =>{
             </div>
             <form onSubmit={(e)=>e.preventDefault()} className="w-3/12 absolute p-12 bg-black bg-opacity-90 my-36 mx-auto text-white left-0 right-0">
                 <h1 className="font-bold text-3xl py-4 ">{formName}</h1>
-                {formName === "Sign Up" && <input type="text" placeholder="Full Name" className="p-4 my-4 w-full bg-gray-900 rounded-lg" />}
+                {formName === "Sign Up" && <input ref={name} type="text" placeholder="Full Name" className="p-4 my-4 w-full bg-gray-900 rounded-lg" />}
                 <input ref={email} type="text" placeholder="Email" className="p-4 my-4 w-full bg-gray-900 rounded-lg" />
                 <input ref={password} type="password" placeholder="Password" className="p-4 my-4 w-full bg-gray-900 rounded-lg" />
                 <p className="font-bold text-red-500 py-1" >{message}</p>
